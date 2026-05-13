@@ -25,3 +25,4 @@ export default function SignUpPage({ onSignupSuccess = null }) {
       e.password = "Password must be at least 6 characters";
     return e;
   };
+}

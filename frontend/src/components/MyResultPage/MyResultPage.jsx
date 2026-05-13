@@ -8,7 +8,7 @@ const Badge = ({ percent }) => {
   return <span className={resultStyles.badgeNeedsWork}>Needs Work</span>;
 };
 
-export default function MyResultPage({ apiBase = "http://localhost:5000" }) {
+export default function MyResultPage({ apiBase = "https://quizapp-fhss.onrender.com" }) {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -211,5 +211,4 @@ function StripCard({ item }) {
        {item.timeSpent ? ` • ${item.timeSpent}` : ""}
   
 }
-
-
+}
