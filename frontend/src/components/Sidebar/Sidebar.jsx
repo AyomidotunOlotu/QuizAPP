@@ -1,16 +1,194 @@
-
-const API_BASE = "http://localhost:5000";
-
+import React, { useState, useEffect, useRef } from "react";
+import { Globe, Layout, Code, Cpu, Database, Coffee, Terminal, Star, Zap, Target, Menu, CheckCircle, XCircle, Award, BookOpen, Trophy, Sparkles } from "lucide-react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import sidebarStyles from "./Sidebar.module.css";
+const API_BASE = "https://quizapp-fhss.onrender.com";
+const getQuestions = (tech, level) => {
+  if (!tech || !level) return [];
+  const templates = {
+    basic: [
+      {
+        question: `What is ${tech.toUpperCase()} typically used for?`,
+        options: [
+          "Building structure",
+          "Adding logic and behavior",
+          "Creating styles and layout",
+          "Managing backend services",
+        ],
+        correctAnswer: 0,
+      },
+      {
+        question: `Which statement best describes ${tech.toUpperCase()}?`,
+        options: [
+          "A frontend markup or UI tool",
+          "A backend database",
+          "A styling language",
+          "A server runtime",
+        ],
+        correctAnswer: 0,
+      },
+      {
+        question: `A beginner should start learning ${tech.toUpperCase()} to understand:`,
+        options: [
+          "How web content is structured",
+          "How servers process data",
+          "How to style components",
+          "How to design APIs",
+        ],
+        correctAnswer: 0,
+      },
+      {
+        question: `${tech.toUpperCase()} is most closely associated with:`,
+        options: [
+          "HTML tags and page structure",
+          "CSS selectors and styling",
+          "JavaScript logic",
+          "Server-side processing",
+        ],
+        correctAnswer: 0,
+      },
+      {
+        question: `Which of the following is a common ${tech.toUpperCase()} concept?`,
+        options: [
+          "Elements and attributes",
+          "Components and hooks",
+          "Queries and schemas",
+          "Threads and concurrency",
+        ],
+        correctAnswer: 0,
+      },
+    ],
+    intermediate: [
+      {
+        question: `Which feature is important for ${tech.toUpperCase()} development at the intermediate level?`,
+        options: [
+          "Understanding semantic structure",
+          "Creating dynamic UI interactions",
+          "Writing clean CSS",
+          "Working with databases",
+        ],
+        correctAnswer: 0,
+      },
+      {
+        question: `How does ${tech.toUpperCase()} fit into the web development workflow?`,
+        options: [
+          "It defines the structure of content",
+          "It styles the user interface",
+          "It runs server-side logic",
+          "It manages data persistence",
+        ],
+        correctAnswer: 0,
+      },
+      {
+        question: `An intermediate ${tech.toUpperCase()} quiz question might cover:`,
+        options: [
+          "Form elements and validity",
+          "JavaScript event handling",
+          "Responsive styling",
+          "API integration",
+        ],
+        correctAnswer: 0,
+      },
+      {
+        question: `Which is a typical ${tech.toUpperCase()} task?`,
+        options: [
+          "Creating accessible page sections",
+          "Setting up CSS modules",
+          "Building stateful components",
+          "Writing SQL queries",
+        ],
+        correctAnswer: 0,
+      },
+      {
+        question: `What does a developer use ${tech.toUpperCase()} for?`,
+        options: [
+          "To structure web pages and content",
+          "To style visual layouts",
+          "To build interactive applications",
+          "To connect to databases",
+        ],
+        correctAnswer: 0,
+      },
+    ],
+    advanced: [
+      {
+        question: `Advanced ${tech.toUpperCase()} knowledge includes:`,
+        options: [
+          "Complex document structure",
+          "Advanced styling techniques",
+          "Optimized JavaScript logic",
+          "Backend API design",
+        ],
+        correctAnswer: 0,
+      },
+      {
+        question: `What makes ${tech.toUpperCase()} advanced topics more challenging?`,
+        options: [
+          "Handling nested elements and accessibility",
+          "Managing responsive layouts",
+          "Building reusable components",
+          "Scaling databases",
+        ],
+        correctAnswer: 0,
+      },
+      {
+        question: `A senior ${tech.toUpperCase()} developer should understand:`,
+        options: [
+          "How browsers interpret markup",
+          "How CSS specificity works",
+          "How JavaScript closures operate",
+          "How to configure servers",
+        ],
+        correctAnswer: 0,
+      },
+      {
+        question: `Which advanced ${tech.toUpperCase()} concept can improve page structure?`,
+        options: [
+          "Using semantic HTML responsibly",
+          "Writing CSS variables",
+          "Organizing React state",
+          "Designing backend schemas",
+        ],
+        correctAnswer: 0,
+      },
+      {
+        question: `What is a strong indicator of advanced ${tech.toUpperCase()} skill?`,
+        options: [
+          "Creating structured and accessible layouts",
+          "Implementing complex styling systems",
+          "Composing scalable UI logic",
+          "Optimizing database queries",
+        ],
+        correctAnswer: 0,
+      },
+    ],
+  };
+  return templates[level] || [];
+};
 const Sidebar = () => {
   const [selectedTech, setSelectedTech] = useState(null);
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswers, setUserAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
+  const [questions, setQuestions] = useState([]);
 
   const submittedRef = useRef(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const asideRef = useRef(null);
+
+  useEffect(() => {
+    if (selectedTech && selectedLevel) {
+      setQuestions(getQuestions(selectedTech, selectedLevel));
+      setCurrentQuestion(0);
+      setUserAnswers({});
+      setShowResults(false);
+      submittedRef.current = false;
+    } else {
+      setQuestions([]);
+    }
+  }, [selectedTech, selectedLevel]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -142,8 +320,30 @@ const Sidebar = () => {
     }, 120);
   };
 
-    const calculateScore = () => {
-    const questions = getQuestions();
+  const handleLevelSelect = (levelId) => {
+    setSelectedLevel(levelId);
+    setCurrentQuestion(0);
+    setUserAnswers({});
+    setShowResults(false);
+    submittedRef.current = false;
+    if (window.innerWidth < 768) setIsSidebarOpen(false);
+  };
+
+  const handleAnswerSelect = (answerIndex) => {
+    if (userAnswers[currentQuestion] !== undefined || !questions.length) return;
+    setUserAnswers((prev) => ({ ...prev, [currentQuestion]: answerIndex }));
+
+    if (currentQuestion >= questions.length - 1) {
+      setTimeout(() => setShowResults(true), 800);
+      return;
+    }
+
+    setTimeout(() => {
+      setCurrentQuestion((prev) => prev + 1);
+    }, 800);
+  };
+
+  const calculateScore = () => {
     let correct = 0;
     questions.forEach((question, index) => {
       if (userAnswers[index] === question.correctAnswer) {
@@ -159,8 +359,6 @@ const Sidebar = () => {
     };
   };
 
-
-  const questions = getQuestions();
   const currentQ = questions[currentQuestion];
   const score = calculateScore();
 
@@ -195,28 +393,28 @@ const Sidebar = () => {
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
 
-  const submitResult = async () => {
-
+const submitResult = async () => {
+    if (submittedRef.current) return;
+    submittedRef.current = true;
     const payload = {
-      title: `${selectedTech.toUpperCase()} - ${
-        selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1)
-      } quiz`,
+      title: `${selectedTech.toUpperCase()} - ${selectedLevel} quiz`,
       technology: selectedTech,
       level: selectedLevel,
       totalQuestions: score.total,
       correct: score.correct,
       wrong: score.total - score.correct,
     };
-
-    catch (err) {
+    try {
+      const token = localStorage.getItem("token") || localStorage.getItem("authToken");
+      await axios.post(`${API_BASE}/api/results`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (err) {
       submittedRef.current = false;
-      console.error(
-        "Error saving result:",
-        err?.response?.data || err.message || err
-      );
-      toast.error("Could not save result. Check console or network.");
+      console.error("Error saving result:", err?.response?.data || err.message);
+      toast.error("Could not save result.");
     }
-
+  };
   useEffect(() => {
     if (showResults) {
       submitResult();
@@ -226,7 +424,8 @@ const Sidebar = () => {
 
     
 
-
+return (
+    <div>
 {/* QUESTION AND ANSWER ALSO RESULT */}
         <main className={sidebarStyles.mainContent}>
           <div className={sidebarStyles.mobileHeader}>
@@ -552,9 +751,7 @@ const Sidebar = () => {
             </div>
           )}
         </main>
-      </div>
-
-      <style>{sidebarStyles.customStyles}</style>
+        <style>{sidebarStyles.customStyles}</style>
     </div>
   );
 };
