@@ -1,31 +1,93 @@
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
+const Navbar = () => {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
   useEffect(() => {
     try {
-      const u = localStorage.getItem("authToken");
-      setLoggedIn(!!u);
+      const token = localStorage.getItem("authToken") || localStorage.getItem("token");
+      setLoggedIn(!!token);
     } catch (e) {
       setLoggedIn(false);
     }
-
-    const handler = (ev) => {
-      const detailUser = ev?.detail?.user ?? null;
-      setLoggedIn(!!detailUser);
-    };
-    window.addEventListener("authChanged", handler);
-
-    return () => window.removeEventListener("authChanged", handler);
   }, []);
 
-  
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("token");
+    setLoggedIn(false);
+    navigate("/login");
+  };
 
-          <Link to="/" className={navbarStyles.logoButton}>
-            <div className={navbarStyles.logoInner}>
-              <img
-                src={
-                  logoSrc ||
-                  "https://yt3.googleusercontent.com/eD5QJD-9uS--ekQcA-kDTCu1ZO4d7d7BTKLIVH-EySZtDVw3JZcc-bHHDOMvxys92F7rD8Kgfg=s900-c-k-c0x00ffffff-no-rj"
-                }
-                alt="QuizMaster logo"
-                className={navbarStyles.logoImage}
-              />
-            </div>
-          </Link>
+  return (
+    <nav style={{
+      background: "#1e1b4b",
+      color: "white",
+      padding: "12px 24px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+    }}>
+      <Link to="/" style={{ textDecoration: "none", color: "white" }}>
+        <span style={{ fontSize: "20px", fontWeight: "bold" }}>⚡ Tech Quiz Master</span>
+      </Link>
+
+      <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+        {loggedIn ? (
+          <>
+            <Link to="/result" style={{
+              color: "#a5b4fc",
+              textDecoration: "none",
+              fontSize: "14px",
+              fontWeight: "500",
+            }}>
+              My Results
+            </Link>
+            <button
+              onClick={handleLogout}
+              style={{
+                background: "#4338ca",
+                color: "white",
+                border: "none",
+                padding: "8px 16px",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: "500",
+              }}
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/login" style={{
+              color: "#a5b4fc",
+              textDecoration: "none",
+              fontSize: "14px",
+              fontWeight: "500",
+            }}>
+              Login
+            </Link>
+            <Link to="/signup" style={{
+              background: "#4338ca",
+              color: "white",
+              textDecoration: "none",
+              padding: "8px 16px",
+              borderRadius: "6px",
+              fontSize: "14px",
+              fontWeight: "500",
+            }}>
+              Sign Up
+            </Link>
+          </>
+        )}
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;
