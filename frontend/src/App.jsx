@@ -1,7 +1,6 @@
 // src/App.jsx
 import React from "react";
 import {
-  BrowserRouter,
   Routes,
   Route,
   Navigate,
