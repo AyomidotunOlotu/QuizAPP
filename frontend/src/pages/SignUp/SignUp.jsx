@@ -1,6 +1,5 @@
 import React from 'react'
 import SignUpPage from '../../components/SignUpPage/SignUpPage'
-
 const SignUp = () => {
   return (
     <div>
@@ -8,5 +7,4 @@ const SignUp = () => {
     </div>
   )
 }
-
 export default SignUp

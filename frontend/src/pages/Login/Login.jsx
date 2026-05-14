@@ -1,6 +1,5 @@
 import React from 'react'
 import LoginPage from '../../components/LoginPage/LoginPage'
-
 const Login = () => {
   return (
     <div>
@@ -8,5 +7,4 @@ const Login = () => {
     </div>
   )
 }
-
 export default Login
